@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	pixelator "github.com/alekseysychev/PixelatorGo"
+	pixelator "github.com/alekseysychev/PixelatorGo/pkg/pixelator"
 )
 
 var (
@@ -20,19 +20,19 @@ func init() {
 }
 
 func main() {
-	inputFile, err := os.Open("input.jpg")
+	inputFile, err := os.Open("./examples/input.jpg")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer inputFile.Close()
 
-	outputFile, err := os.Create("output.jpg")
+	outputFile, err := os.Create("./examples/output.jpg")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	defer outputFile.Close()
 
-	err = pixelator.Compile(inputFile, outputFile, clusterSize, quality)
+	err = pixelator.Init(inputFile, outputFile).Compile(clusterSize, quality)
 	if err != nil {
 		log.Fatalln(err)
 	}

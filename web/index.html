@@ -1,0 +1,62 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<div id="app">
+    <div v-if="file == ''">
+        <input type="file" name="file" @change="setFile">
+    </div>
+    <div v-else>
+        <div>cluster size</div>
+        <div>
+            <input type="range" min="1" max="100" name="clusterSize" @input="reload" v-model="clusterSize">
+        </div>
+        <div>quality</div>
+        <div>
+            <input type="range" min="1" max="100" name="quality" @input="reload" v-model="quality">
+        </div>
+        <img :src="src">
+    </div>
+</div>
+
+<style>
+    input, img {
+        width: 100%;
+    }
+</style>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Привет, Vue!',
+            clusterSize: 5,
+            quality: 100,
+            file: '',
+            src: '',
+        },
+        methods: {
+            setFile(event) {
+                this.file = event.target.files[0]
+                this.reload()
+            },
+            reload() {
+                let formData = new FormData();
+                formData.append('file', this.file);
+                formData.append('clusterSize', this.clusterSize);
+                formData.append('quality', this.quality);
+                axios.post( '/',
+                    formData,
+                    {
+                        responseType: 'arraybuffer',
+                        headers: {'Content-Type': 'multipart/form-data'}
+                    }
+                ).then(response => {
+                    var arrayBufferView = new Uint8Array( response.data );
+                    var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
+                    var urlCreator = window.URL || window.webkitURL;
+                    this.src = urlCreator.createObjectURL( blob );
+                })
+            }
+        }
+    })
+</script>

@@ -1,7 +1,6 @@
 package pixelator
 
 import (
-	"errors"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -48,16 +47,15 @@ func (c *clusterRGBA) Avg() color.RGBA {
 	}
 }
 
-func Compile(r io.Reader, w io.Writer, s int, q int) error {
-	if s <= 0 {
-		return errors.New("cluster size must be more than 0")
-	}
-	if q <= 0 {
-		return errors.New("quality must be more than 0")
-	}
+type pixelator struct {
+	r io.Reader
+	w io.Writer
+}
 
-	imageData, _, err := image.Decode(r)
+func (p *pixelator) Compile(s int, q int) error {
+	imageData, _, err := image.Decode(p.r)
 	if err != nil {
+		log.Printf("jpeg.Decode : %s", err.Error())
 		return err
 	}
 
@@ -81,14 +79,21 @@ func Compile(r io.Reader, w io.Writer, s int, q int) error {
 		}
 	}
 
-	log.Println(q)
-	options := jpeg.Options{
+	err = jpeg.Encode(p.w, newImage, &jpeg.Options{
 		Quality: q,
-	}
-	err = jpeg.Encode(w, newImage, &options)
+	})
+
 	if err != nil {
+		log.Printf("jpeg.Encode : %s", err.Error())
 		return err
 	}
 
 	return nil
+}
+
+func Init(r io.Reader, w io.Writer) *pixelator {
+	return &pixelator{
+		r: r,
+		w: w,
+	}
 }
