@@ -4,8 +4,9 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 
-	pixelator "github.com/alekseysychev/PixelatorGo/pkg/pixelator"
+	"github.com/alekseysychev/PixelatorGo/pkg/pixelator"
 )
 
 var (
@@ -20,6 +21,8 @@ func init() {
 }
 
 func main() {
+	start := time.Now()
+
 	inputFile, err := os.Open("./examples/input.jpg")
 	if err != nil {
 		log.Fatalln(err)
@@ -32,8 +35,18 @@ func main() {
 	}
 	defer outputFile.Close()
 
-	err = pixelator.Init(inputFile, outputFile).Compile(clusterSize, quality)
+	err = pixelator.Compile(inputFile, outputFile, pixelator.Settings{
+		ClusterSize: clusterSize,
+		Quality:     quality,
+	})
+
 	if err != nil {
 		log.Fatalln(err)
 	}
+	stop := time.Now()
+
+	log.Printf("Options:\n")
+	log.Printf("  -  cluster size : %d\n", clusterSize)
+	log.Printf("  -  quality      : %d\n", quality)
+	log.Printf("Script working time: %s\n", stop.Sub(start))
 }
