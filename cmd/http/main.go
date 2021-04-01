@@ -43,7 +43,11 @@ func main() {
 				return
 			}
 
-			err = pixelator.Init(inputFile, w).Compile(clusterSize, quality)
+			pixelator.Compile(inputFile, w, pixelator.Settings{
+				ClusterSize: clusterSize,
+				Quality:     quality,
+			})
+
 			if err != nil {
 				log.Println("err pixelator")
 				http.Error(w, err.Error(), http.StatusBadRequest)
